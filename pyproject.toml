@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "voiceclone"
+version = "0.1.0"
+description = "My project to generate the speech of a target speaker of a specific person"
+authors = ["Alexander Gaivoronsky <lifami40@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torch = "^1.10.0"
+tensorboardX = "^2.4"
+matplotlib = "^3.4.3"
+mir_eval = "^0.6"
+librosa = "^0.8.1"
+PyYAML = "^6.0"
+tqdm = "^4.62.3"
+Pillow = "^8.4.0"
+ffmpeg-normalize = "^1.22.4"
+tensorboard = "^2.7.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
