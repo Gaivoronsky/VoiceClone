@@ -1,6 +1,7 @@
 import math
 import traceback
 from pathlib import Path
+from tqdm import tqdm
 
 import torch
 import torch.nn as nn
@@ -13,7 +14,7 @@ from utils.evaluation import validate
 
 
 def train(args, pt_dir, trainloader, testloader, writer, logger, hp, hp_str, device):
-    embedder_pt = torch.load(args.embedder)
+    embedder_pt = torch.load(args.embedded, map_location=device)
     embedder = SpeechEmbedder(hp).to(device)
     embedder.load_state_dict(embedder_pt)
     embedder.eval()
@@ -52,7 +53,7 @@ def train(args, pt_dir, trainloader, testloader, writer, logger, hp, hp_str, dev
         criterion = nn.MSELoss()
         while True:
             model.train()
-            for dvec_mels, target_mag, other_mag in trainloader:
+            for dvec_mels, target_mag, other_mag in tqdm(trainloader):
                 target_mag, other_mag = target_mag.to(device), other_mag.to(device)
 
                 dvec_list = list()

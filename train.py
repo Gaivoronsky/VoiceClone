@@ -2,9 +2,15 @@ import argparse
 from pathlib import Path
 import logging
 import time
-import torch
 
-from datasets.dataloader import create_dataloader
+import pandas as pd
+import torch
+import torchaudio
+from sklearn.model_selection import train_test_split
+from tqdm import tqdm
+from torch.utils.data import DataLoader
+
+from datasets.dataloader_vctk import VCTKDataset
 from utils.hparams import HParam
 from utils.train import train
 from utils.writer import MyWriter
@@ -81,6 +87,25 @@ def create_parser():
     return parser.parse_args()
 
 
+def train_collate_fn(batch):
+    dvec_list = list()
+    target_mag_list = list()
+    mixed_mag_list = list()
+
+    for dvec_mel, target_mag, mixed_mag in batch:
+        dvec_list.append(dvec_mel)
+        target_mag_list.append(target_mag)
+        mixed_mag_list.append(mixed_mag)
+    target_mag_list = torch.stack(target_mag_list, dim=0)
+    mixed_mag_list = torch.stack(mixed_mag_list, dim=0)
+
+    return dvec_list, target_mag_list, mixed_mag_list
+
+
+def test_collate_fn(batch):
+    return batch
+
+
 def main(args):
     hp = HParam(args.config)
     with open(args.config, 'r') as f:
@@ -105,17 +130,37 @@ def main(args):
 
     logger = logging.getLogger()
 
-    if hp.data.train_dir == '' or hp.data.test_dir == '':
-        logger.error("train_dir, test_dir cannot be empty.")
-        raise Exception("Please specify directories of data in %s" % args.config)
-
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     logger.info(device)
 
     writer = MyWriter(hp, str(log_dir))
 
-    trainloader = create_dataloader(hp, args, train=True)
-    testloader = create_dataloader(hp, args, train=False)
+    datasets = torchaudio.datasets.VCTK_092('.', audio_ext='.wav', download=True)
+
+    corpus = [sample for sample in tqdm(datasets)]
+    df = pd.DataFrame(corpus, columns=['wav', 'sr', 'transcript', 'speaker_id', 'utterance_id'])
+
+    train_data, test_data = train_test_split(df, test_size=0.1)
+    train_data.sort_values(by=['utterance_id'], inplace=True)
+    test_data.sort_values(by=['utterance_id'], inplace=True)
+
+    trainloader = DataLoader(
+        dataset=VCTKDataset(train_data, hp),
+        batch_size=hp.train.batch_size,
+        shuffle=True,
+        num_workers=0,
+        collate_fn=train_collate_fn,
+        pin_memory=True,
+        drop_last=True,
+        sampler=None,
+    )
+    testloader = DataLoader(
+            dataset=VCTKDataset(test_data, hp, train=False),
+            collate_fn=test_collate_fn,
+            batch_size=args.batch_size_test,
+            shuffle=False,
+            num_workers=0,
+        )
 
     train(args, pt_dir, trainloader, testloader, writer, logger, hp, hp_str, device)
 

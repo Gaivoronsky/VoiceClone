@@ -3,7 +3,7 @@
 config/*
 !config/default.yaml
 
-
+VCTK-Corpus-0.92
 temp/
 chkpt/
 logs/
