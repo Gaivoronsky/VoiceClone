@@ -9,7 +9,7 @@ def len_audio(fname: Path) -> float:
     return tag.duration
 
 
-def convert_dir(dir_data: str):
+def convert_dataset(dir_data: str):
     dir_data = Path(dir_data)
     list_path_audio = dir_data.glob('wav48_silence_trimmed/*/*.flac')
 
@@ -27,4 +27,4 @@ def convert_dir(dir_data: str):
 
 
 if __name__ == '__main__':
-    convert_dir('VCTK-Corpus-0.92')
+    convert_dataset('VCTK-Corpus-0.92')
