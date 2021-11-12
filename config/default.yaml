@@ -30,7 +30,7 @@ form:
     mag: '*-mixed.pt'
 ---
 train:
-  batch_size: 2
+  batch_size: 4
   num_workers: 16
   optimizer: 'adam'
   adam: 0.001

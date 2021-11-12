@@ -24,7 +24,3 @@ def convert_dataset(dir_data: str):
                 os.remove(path_txt)
             except:
                 pass
-
-
-if __name__ == '__main__':
-    convert_dataset('VCTK-Corpus-0.92')

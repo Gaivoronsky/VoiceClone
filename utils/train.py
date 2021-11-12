@@ -1,6 +1,7 @@
 import math
 import traceback
 from pathlib import Path
+
 from tqdm import tqdm
 
 import torch
@@ -75,6 +76,7 @@ def train(args, pt_dir, trainloader, testloader, writer, logger, hp, hp_str, dev
                 step += 1
 
                 loss = loss.item()
+                writer.log_training(loss, step)
                 if loss > 1e8 or math.isnan(loss):
                     logger.error('Loss exploded to %.02f at step %d!' % (loss, step))
                     raise Exception('Loss exploded')
