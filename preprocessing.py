@@ -1,10 +1,9 @@
 import os
 from pathlib import Path
-
 import torchaudio
-from utils.convert import ConvertData
 from queue import Queue
-from tqdm import tqdm
+
+from utils.convert import ConvertData
 
 
 def main():
@@ -23,7 +22,7 @@ def main():
         thread.setDaemon(True)
         thread.start()
 
-    for path_audio in tqdm(list_path_audio):
+    for path_audio in list_path_audio:
         queue.put(path_audio)
 
     print('Now wait about half an hour')
