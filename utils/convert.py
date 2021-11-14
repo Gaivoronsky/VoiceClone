@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from tqdm import tqdm
 from tinytag import TinyTag
 import threading
 
@@ -21,7 +20,7 @@ class ConvertData(threading.Thread):
             self.queue.task_done()
 
     def convert_dataset(self, list_audio):
-        for path_wav in tqdm(list_audio):
+        for path_wav in list_audio:
             final_path_wav = str(path_wav).replace('flac', 'wav')
             if self._len_audio(path_wav) > 3:
                 os.system(f'ffmpeg-normalize {path_wav} -ar 16000 -o {final_path_wav}')
