@@ -4,6 +4,7 @@ from pathlib import Path
 import torchaudio
 from utils.convert import ConvertData
 from queue import Queue
+from tqdm import tqdm
 
 
 def main():
@@ -13,9 +14,7 @@ def main():
     print(f"{num_thread} cores available")
 
     dir_data = Path('VCTK-Corpus-0.92')
-    list_path_audio = list(dir_data.glob('wav48_silence_trimmed/*/*.flac'))
-    size = len(list_path_audio) // num_thread
-    list_thread = [list_path_audio[idx * size: (idx + 1) * size] for idx in range(len(list_path_audio) // size + 1)]
+    list_path_audio = dir_data.glob('wav48_silence_trimmed/*/*.flac')
 
     queue = Queue()
 
@@ -24,8 +23,8 @@ def main():
         thread.setDaemon(True)
         thread.start()
 
-    for list_audio in list_thread:
-        queue.put(list_audio)
+    for path_audio in tqdm(list_path_audio):
+        queue.put(path_audio)
 
     print('Now wait about half an hour')
     queue.join()

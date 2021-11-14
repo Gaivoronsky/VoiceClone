@@ -15,19 +15,18 @@ class ConvertData(threading.Thread):
 
     def run(self):
         while True:
-            list_audio = self.queue.get()
-            self.convert_dataset(list_audio)
+            path_wav = self.queue.get()
+            self.convert_dataset(path_wav)
             self.queue.task_done()
 
-    def convert_dataset(self, list_audio):
-        for path_wav in list_audio:
-            final_path_wav = str(path_wav).replace('flac', 'wav')
-            if self._len_audio(path_wav) > 3:
-                os.system(f'ffmpeg-normalize {path_wav} -ar 16000 -o {final_path_wav}')
-            else:
-                try:
-                    path_txt = str(final_path_wav).replace('wav48_silence_trimmed', 'txt')
-                    path_txt = path_txt[:-9] + '.txt'
-                    os.remove(path_txt)
-                except:
-                    pass
+    def convert_dataset(self, path_wav):
+        final_path_wav = str(path_wav).replace('flac', 'wav')
+        if self._len_audio(path_wav) > 3:
+            os.system(f'ffmpeg-normalize {path_wav} -ar 16000 -o {final_path_wav}')
+        else:
+            try:
+                path_txt = str(final_path_wav).replace('wav48_silence_trimmed', 'txt')
+                path_txt = path_txt[:-9] + '.txt'
+                os.remove(path_txt)
+            except:
+                pass
