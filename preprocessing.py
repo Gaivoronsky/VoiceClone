@@ -3,6 +3,7 @@ from pathlib import Path
 
 import torchaudio
 from utils.convert import ConvertData
+from queue import Queue
 
 
 def main():
@@ -14,9 +15,17 @@ def main():
     size = len(list_path_audio) // num_thread
     list_thread = [list_path_audio[idx * size: (idx + 1) * size] for idx in range(len(list_path_audio) // size + 1)]
 
-    for idx, list_audio in enumerate(list_thread):
-        thread = ConvertData(list_audio)
+    queue = Queue()
+
+    for _ in range(num_thread):
+        thread = ConvertData(queue)
+        thread.setDaemon(True)
         thread.start()
+
+    for list_audio in list_thread:
+        queue.put(list_audio)
+
+    queue.join()
 
 
 if __name__ == '__main__':
