@@ -66,15 +66,19 @@ class VoiceClone(nn.Module):
 
         # dvec: [B, emb_dim]
         dvec = dvec.unsqueeze(1)
-        dvec = dvec.repeat(1, x.size(1), 1)
         # dvec: [B, T, emb_dim]
+        dvec = dvec.repeat(1, x.size(1), 1)
 
-        x = torch.cat((x, dvec), dim=2)  # [B, T, 8*num_freq + emb_dim]
+        # [B, T, 8*num_freq + emb_dim]
+        x = torch.cat((x, dvec), dim=2)
 
-        x, _ = self.lstm(x)  # [B, T, 2*lstm_dim]
+        # [B, T, 2*lstm_dim]
+        x, _ = self.lstm(x)
         x = F.relu(x)
-        x = self.fc1(x)  # x: [B, T, fc1_dim]
+        # x: [B, T, fc1_dim]
+        x = self.fc1(x)
         x = F.relu(x)
-        x = self.fc2(x)  # x: [B, T, fc2_dim], fc2_dim == num_freq
+        # x: [B, T, fc2_dim], fc2_dim == num_freq
+        x = self.fc2(x)
         x = torch.sigmoid(x)
         return x
